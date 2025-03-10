@@ -1,6 +1,7 @@
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Todos</h1>
+
     <form @submit.prevent="addTodo" class="mb-4 flex space-x-2">
       <input
         v-model="newTodo.title"
@@ -15,24 +16,25 @@
       />
       <button type="submit" class="bg-green-500 text-white p-2">Add</button>
     </form>
+
     <ul class="space-y-2">
       <li
         v-for="todo in todos"
-        :key="todo.Id"
+        :key="todo.id"
         class="flex justify-between items-center p-2 border"
       >
-        <span :class="{ 'line-through': todo.Completed }">
-          {{ todo.Title }} - {{ todo.Description || "No description" }}
+        <span class="text-red-500">
+          {{ todo.task }} - {{ todo.description || "No description" }}
         </span>
         <div>
           <button
             @click="toggleTodo(todo)"
             class="bg-yellow-500 text-white p-1 mr-2"
           >
-            {{ todo.Completed ? "Undo" : "Complete" }}
+            Toggle
           </button>
           <button
-            @click="deleteTodo(todo.Id)"
+            @click="deleteTodo(todo.id)"
             class="bg-red-500 text-white p-1"
           >
             Delete
@@ -44,7 +46,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 
 export default {
@@ -54,21 +56,24 @@ export default {
 
     onMounted(() => store.dispatch("fetchTodos"));
 
-    const todos = () => store.getters.todos;
+    // ✅ Fix: Use computed() to make todos reactive
+    const todos = computed(() => store.getters.todos);
 
-    const addTodo = () => {
-      store.dispatch("addTodo", { ...newTodo.value });
+    const addTodo = async () => {
+      await store.dispatch("addTodo", { ...newTodo.value });
       newTodo.value = { title: "", description: "" };
     };
 
-    const toggleTodo = (todo) => {
-      store.dispatch("updateTodo", {
-        id: todo.Id,
-        updatedTodo: { completed: !todo.Completed },
+    const toggleTodo = async (todo) => {
+      await store.dispatch("updateTodo", {
+        id: todo.id, // ✅ Fix: Use `id` instead of `Id`
+        updatedTodo: { completed: !todo.completed }, // ✅ Fix: Use `completed` instead of `Completed`
       });
     };
 
-    const deleteTodo = (id) => store.dispatch("deleteTodo", id);
+    const deleteTodo = async (id) => {
+      await store.dispatch("deleteTodo", id);
+    };
 
     return { todos, newTodo, addTodo, toggleTodo, deleteTodo };
   },

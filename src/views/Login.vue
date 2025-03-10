@@ -3,9 +3,9 @@
     <h1 class="text-2xl font-bold mb-4">Login</h1>
     <form @submit.prevent="login" class="space-y-4">
       <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
+        v-model="name"
+        type="text"
+        placeholder="name"
         class="border p-2 w-full"
         required
       />
@@ -30,7 +30,7 @@ import { useRouter } from "vue-router";
 
 export default {
   setup() {
-    const email = ref("");
+    const name = ref("");
     const password = ref("");
     const store = useStore();
     const router = useRouter();
@@ -38,7 +38,7 @@ export default {
     const login = async () => {
       try {
         await store.dispatch("login", {
-          email: email.value,
+          name: name.value,
           password: password.value,
         });
         router.push("/todos");
@@ -47,7 +47,7 @@ export default {
       }
     };
 
-    return { email, password, login };
+    return { name, password, login };
   },
 };
 </script>

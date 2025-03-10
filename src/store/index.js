@@ -11,43 +11,82 @@ export default createStore({
       state.token = token;
     },
     setTodos(state, todos) {
+      console.log("✅ Setting Todos in Vuex:", todos); // Debugging
       state.todos = todos;
     },
   },
   actions: {
     async login({ commit }, credentials) {
-      const res = await api.post("/api/auth/login", credentials);
+      const res = await api.post("/auth/login", credentials);
       const token = res.data.token;
       localStorage.setItem("token", token);
       commit("setToken", token);
     },
+
     async register({ commit }, userData) {
-      const res = await api.post("/api/auth/register", userData);
+      const res = await api.post("/auth/register", userData);
       const token = res.data.token;
       localStorage.setItem("token", token);
       commit("setToken", token);
     },
+
     async fetchTodos({ commit }) {
-      const res = await api.get("/api/todos");
-      commit("setTodos", res.data);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/todos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        commit("setTodos", res.data);
+      } catch (error) {
+        console.error(
+          "🚨 Error fetching todos:",
+          error.response?.data || error
+        );
+      }
     },
-    async addTodo({ commit, state }, todo) {
-      const res = await api.post("/api/todos", todo);
-      commit("setTodos", [...state.todos, res.data]);
+
+    async addTodo({ dispatch }, todo) {
+      try {
+        const token = localStorage.getItem("token");
+        await api.post("/todos", todo, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        await dispatch("fetchTodos"); // ✅ Re-fetch todos after adding
+      } catch (error) {
+        console.error("🚨 Error adding todo:", error.response?.data || error);
+      }
     },
+
     async updateTodo({ commit, state }, { id, updatedTodo }) {
-      const res = await api.put(`/api/todos/${id}`, updatedTodo);
-      commit(
-        "setTodos",
-        state.todos.map((t) => (t.Id === id ? res.data : t))
-      );
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.put(`/todos/${id}`, updatedTodo, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        commit(
+          "setTodos",
+          state.todos.map((t) => (t.id === id ? res.data : t)) // ✅ Use `t.id`
+        );
+      } catch (error) {
+        console.error("🚨 Error updating todo:", error.response?.data || error);
+      }
     },
+
     async deleteTodo({ commit, state }, id) {
-      await api.delete(`/api/todos/${id}`);
-      commit(
-        "setTodos",
-        state.todos.filter((t) => t.Id !== id)
-      );
+      try {
+        const token = localStorage.getItem("token");
+        await api.delete(`/todos/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        commit(
+          "setTodos",
+          state.todos.filter((t) => t.id !== id) // ✅ Use `t.id`
+        );
+      } catch (error) {
+        console.error("🚨 Error deleting todo:", error.response?.data || error);
+      }
     },
   },
   getters: {

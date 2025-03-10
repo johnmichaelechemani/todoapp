@@ -6,25 +6,32 @@
         v-model="username"
         type="text"
         placeholder="Username"
-        class="border p-2 w-full"
+        class="border p-2 w-full rounded"
         required
       />
       <input
         v-model="email"
         type="email"
         placeholder="Email"
-        class="border p-2 w-full"
+        class="border p-2 w-full rounded"
         required
       />
       <input
         v-model="password"
         type="password"
         placeholder="Password"
-        class="border p-2 w-full"
+        class="border p-2 w-full rounded"
         required
       />
-      <button type="submit" class="bg-blue-500 text-white p-2 w-full">
-        Register
+
+      <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
+
+      <button
+        type="submit"
+        class="bg-blue-500 text-white p-2 w-full rounded hover:bg-blue-600 disabled:bg-gray-400"
+        :disabled="loading"
+      >
+        {{ loading ? "Registering..." : "Register" }}
       </button>
     </form>
   </div>
@@ -40,10 +47,20 @@ export default {
     const username = ref("");
     const email = ref("");
     const password = ref("");
+    const errorMessage = ref("");
+    const loading = ref(false);
     const store = useStore();
     const router = useRouter();
 
     const register = async () => {
+      if (!username.value || !email.value || !password.value) {
+        errorMessage.value = "All fields are required!";
+        return;
+      }
+
+      loading.value = true;
+      errorMessage.value = "";
+
       try {
         await store.dispatch("register", {
           username: username.value,
@@ -52,11 +69,13 @@ export default {
         });
         router.push("/todos");
       } catch (err) {
-        alert("Registration failed");
+        errorMessage.value = "Registration failed. Try again.";
+      } finally {
+        loading.value = false;
       }
     };
 
-    return { username, email, password, register };
+    return { username, email, password, register, errorMessage, loading };
   },
 };
 </script>
