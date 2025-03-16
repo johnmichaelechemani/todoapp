@@ -1,7 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Todos</h1>
-
     <form @submit.prevent="addTodo" class="mb-4 flex space-x-2">
       <input
         v-model="newTodo.task"
@@ -22,14 +21,16 @@
         v-for="todo in todos"
         :key="todo.id"
         class="flex justify-between items-center p-2 border"
+        :class="todo.completed ? 'border-green-500' : 'border-orange-500'"
       >
-        <span class="text-red-500">
+        <span :class="todo.completed ? 'text-green-500' : 'text-orange-500'">
           {{ todo.task }} - {{ todo.description || "No description" }}
         </span>
         <div>
           <button
             @click="toggleTodo(todo)"
-            class="bg-yellow-500 text-white p-1 mr-2"
+            class="text-white p-1 mr-2"
+            :class="todo.completed ? 'bg-green-500' : 'bg-orange-500'"
           >
             Toggle
           </button>
@@ -52,23 +53,23 @@ import { useStore } from "vuex";
 export default {
   setup() {
     const store = useStore();
-    const newTodo = ref({ task: "", task: "" });
+    const newTodo = ref({ task: "", description: "" });
 
     onMounted(() => store.dispatch("fetchTodos"));
 
-    // ✅ Fix: Use computed() to make todos reactive
     const todos = computed(() => store.getters.todos);
 
     const addTodo = async () => {
       await store.dispatch("addTodo", { ...newTodo.value });
-      newTodo.value = { task: "", task: "" };
+      newTodo.value = { task: "", description: "" };
     };
 
     const toggleTodo = async (todo) => {
       await store.dispatch("updateTodo", {
-        id: todo.id, // ✅ Fix: Use `id` instead of `Id`
-        updatedTodo: { completed: !todo.completed }, // ✅ Fix: Use `completed` instead of `Completed`
+        id: todo.id,
+        updatedTodo: { completed: !todo.completed },
       });
+      await store.dispatch("fetchTodos");
     };
 
     const deleteTodo = async (id) => {
