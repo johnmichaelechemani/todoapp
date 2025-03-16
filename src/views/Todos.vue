@@ -4,7 +4,7 @@
 
     <form @submit.prevent="addTodo" class="mb-4 flex space-x-2">
       <input
-        v-model="newTodo.title"
+        v-model="newTodo.task"
         placeholder="Title"
         class="border p-2 flex-grow"
         required
@@ -52,7 +52,7 @@ import { useStore } from "vuex";
 export default {
   setup() {
     const store = useStore();
-    const newTodo = ref({ title: "", description: "" });
+    const newTodo = ref({ task: "", task: "" });
 
     onMounted(() => store.dispatch("fetchTodos"));
 
@@ -61,7 +61,7 @@ export default {
 
     const addTodo = async () => {
       await store.dispatch("addTodo", { ...newTodo.value });
-      newTodo.value = { title: "", description: "" };
+      newTodo.value = { task: "", task: "" };
     };
 
     const toggleTodo = async (todo) => {

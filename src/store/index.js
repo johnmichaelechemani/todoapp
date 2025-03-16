@@ -11,7 +11,7 @@ export default createStore({
       state.token = token;
     },
     setTodos(state, todos) {
-      console.log("✅ Setting Todos in Vuex:", todos); // Debugging
+      console.log("✅ Setting Todos in Vuex:", todos); 
       state.todos = todos;
     },
   },
@@ -51,9 +51,9 @@ export default createStore({
         await api.post("/todos", todo, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        await dispatch("fetchTodos"); // ✅ Re-fetch todos after adding
+        await dispatch("fetchTodos"); 
       } catch (error) {
-        console.error("🚨 Error adding todo:", error.response?.data || error);
+        console.error("🚨 Error adding todo:", error.response?.data || error); 
       }
     },
 
@@ -66,7 +66,7 @@ export default createStore({
 
         commit(
           "setTodos",
-          state.todos.map((t) => (t.id === id ? res.data : t)) // ✅ Use `t.id`
+          state.todos.map((t) => (t.id === id ? res.data : t))
         );
       } catch (error) {
         console.error("🚨 Error updating todo:", error.response?.data || error);
@@ -82,7 +82,7 @@ export default createStore({
 
         commit(
           "setTodos",
-          state.todos.filter((t) => t.id !== id) // ✅ Use `t.id`
+          state.todos.filter((t) => t.id !== id) 
         );
       } catch (error) {
         console.error("🚨 Error deleting todo:", error.response?.data || error);
